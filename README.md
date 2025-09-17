@@ -3,6 +3,7 @@
 ## Table of Content
 
 1. [Nest from Scratch](#nest-from-scratch)
+2. [With Nest CLI](#with-nest-cli)
 
 ---
 
@@ -211,3 +212,52 @@ export class AppController {
 ---
 
 ---
+
+## With Nest CLI
+
+### Install nest cli
+
+```bash
+npm i -g @nestjs/cli
+```
+
+### Create nest project (message)
+
+```bash
+nest new project_name
+```
+
+### Run the project
+
+```bash
+npm run start:dev
+```
+
+### Delete everything in src folder except main
+
+### Generate messages module
+
+```bash
+nest generate module messages
+```
+
+### Use message module in main (Remove app module)
+
+```ts
+import { NestFactory } from "@nestjs/core";
+import { MessagesModule } from "./messages/messages.module";
+
+async function bootstrap() {
+  const app = await NestFactory.create(MessagesModule);
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+### Generate Controller inside messages folder
+
+```bash
+nest generate controller messages/messages --flat
+```
+
+- `--flat` says dont create folder called controllers
