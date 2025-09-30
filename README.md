@@ -261,3 +261,55 @@ nest generate controller messages/messages --flat
 ```
 
 - `--flat` says dont create folder called controllers
+
+### Update src/messages/messages.controller.ts
+
+```ts
+import { Controller, Get, Post } from "@nestjs/common";
+
+@Controller("messages")
+export class MessagesController {
+  @Get()
+  listMessages() {}
+
+  @Post()
+  createMessage() {}
+
+  @Get("/:id")
+  getMessage() {}
+}
+```
+
+> **Test using Postman or Thunder Client (vscode extension) for success status code**
+
+### Access Body and Params
+
+- Update src/messages/messages.controller.ts
+
+```ts
+import { Controller, Get, Post, Body, Param } from "@nestjs/common";
+
+@Controller("messages")
+export class MessagesController {
+  @Get()
+  listMessages() {}
+
+  @Post()
+  createMessage(@Body() body: any) {
+    console.log(body);
+  }
+
+  @Get("/:id")
+  getMessage(@Param("id") id: string) {
+    console.log(id);
+  }
+}
+```
+
+> **Test for console log**
+
+---
+
+---
+
+---
