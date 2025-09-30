@@ -4,6 +4,7 @@
 
 1. [Nest from Scratch](#nest-from-scratch)
 2. [With Nest CLI](#with-nest-cli)
+3. [Validating data with ValidationPipe](#validating-data-with-validationpipe)
 
 ---
 
@@ -261,3 +262,142 @@ nest generate controller messages/messages --flat
 ```
 
 - `--flat` says dont create folder called controllers
+
+### Update src/messages/messages.controller.ts
+
+```ts
+import { Controller, Get, Post } from "@nestjs/common";
+
+@Controller("messages")
+export class MessagesController {
+  @Get()
+  listMessages() {}
+
+  @Post()
+  createMessage() {}
+
+  @Get("/:id")
+  getMessage() {}
+}
+```
+
+> **Test using Postman or Thunder Client (vscode extension) for success status code**
+
+### Access Body and Params
+
+- Update src/messages/messages.controller.ts
+
+```ts
+import { Controller, Get, Post, Body, Param } from "@nestjs/common";
+
+@Controller("messages")
+export class MessagesController {
+  @Get()
+  listMessages() {}
+
+  @Post()
+  createMessage(@Body() body: any) {
+    console.log(body);
+  }
+
+  @Get("/:id")
+  getMessage(@Param("id") id: string) {
+    console.log(id);
+  }
+}
+```
+
+> **Test for console log**
+
+---
+
+---
+
+---
+
+## Validating data with ValidationPipe
+
+- Install required packages for validation
+
+```bash
+npm install class-validator class-transformer
+```
+
+- Update src/main.ts
+  - import ValidationPipe
+  - use validation pipe globally in all routes
+  - validation will run for only those routes with validation rules
+
+```diff
+import { NestFactory } from '@nestjs/core';
++ import { ValidationPipe } from '@nestjs/common';
+import { MessagesModule } from './messages/messages.module';
+
+async function bootstrap() {
+   const app = await NestFactory.create(MessagesModule);
++  app.useGlobalPipes(new ValidationPipe());
+   await app.listen(3000);
+}
+bootstrap();
+```
+
+### Create class describing properties of request body
+
+- also called **Data Transfer Object (DTO)**
+- create **src/messages/dtos/create-message.dto.ts**
+
+```ts
+export class CreateMessageDto {
+  content: string;
+}
+```
+
+### Add validation rules
+
+- applied whenever instance of this dto is created
+- update **src/messages/dtos/create-message.dto.ts**
+
+```diff
++ import { IsString } from 'class-validator';
+
+export class CreateMessageDto {
++  @IsString()
+   content: string;
+}
+```
+
+### Apply Validation in Controller route handler
+
+> How just adding dto type works?
+>
+> > When ts compiles to js. Type information is lost but
+> > Because of emitDecoratorMetadata in tsconfig, some of type information is also converted into javascript
+
+- **Update src/messages/messages.controller.ts**
+
+```diff
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
++ import { CreateMessageDto } from './dtos/create-message.dto';
+
+@Controller('messages')
+export class MessagesController {
+  @Get()
+  listMessages() {}
+
+  @Post()
++  createMessage(@Body() body: CreateMessageDto) {
+    console.log(body);
+  }
+
+  @Get('/:id')
+  getMessage(@Param('id') id: string) {
+    console.log(id);
+  }
+}
+```
+
+### What is happening
+
+- class-transformer converts json body into instance of dto class
+- class-validator is used to validate the dto instance
+- if validation error occurs, respond with error 400
